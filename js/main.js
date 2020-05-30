@@ -1,4 +1,4 @@
-import { SHO } from "./system.js";
+import { SHO, WELL } from "./system.js";
 import { PlotAnimation } from "./grafico.js";
 import * as units from "./units.js";
 
@@ -85,22 +85,10 @@ class TimeDependentSystem {
     return this.squareMagnitude(this.superpositionPsi(x, t));
   };
 }
-// let myCoefs = [
-//   { r: 1, i: 0 },
-//   { r: 0, i: 1 },
-//   { r: 0, i: 0 },
-//   { r: 0, i: 0 },
-//   { r: 0, i: 0 },
-//   { r: 0, i: 0 },
-//   { r: 0, i: 1 },
-// ];
-// let tdSHO = new TimeDependentSystem(mySHO, myCoefs);
-// console.log(tdSHO.probDensity(1, 2));
-// console.log(tdSHO.coefs);
 
 let animationParameters = {
-  x: { min: -5, max: 5, N: 500 },
-  t: { min: 0, max: 5, N: 400 },
+  x: { min: -10, max: 10, N: 500 },
+  t: { min: 0, max: 10, N: 800 },
 };
 
 let showLoader = function () {
@@ -146,6 +134,14 @@ let calculate = function () {
       timeIndependentSystem,
       myCoefs
     );
+  } else if (SYSTEM_TYPE == "well") {
+    console.log("well selected");
+    let a = parseFloat(document.getElementById("anchoWell").value);
+    timeIndependentSystem = new WELL(m, a, maxN);
+    timeDependentSystem = new TimeDependentSystem(
+      timeIndependentSystem,
+      myCoefs
+    );
   }
 
   document.getElementById("baseStatesTable").innerHTML = createTableStates(
@@ -176,31 +172,6 @@ document.getElementById("calculateButton").onclick = calculateClicked;
 
 /// MENUS INTERACTIVITY
 
-let systemsIds = [];
-for (let id of systemTypes) {
-  systemsIds.push({ image: id, params: id + "Parameters" });
-}
-// console.log(systemsIds);
-let mostrar = function (idAMostrar) {
-  console.log(idAMostrar);
-  for (let systemId of systemsIds) {
-    console.log(systemId);
-    if (systemId.image == idAMostrar) {
-      console.log(systemId.params);
-      document.getElementById(systemId.params).style.display = "block";
-    } else {
-      document.getElementById(systemId.params).style.display = "none";
-    }
-  }
-};
-
-// add event listeners
-for (let id of systemTypes) {
-  document.getElementById(id).onclick = () => mostrar(id);
-}
-//show SHO at the beggining
-mostrar("sho");
-
 let showCoefficientsMenu = function () {
   console.log("max state changed");
   let newMaxN = parseFloat(document.getElementById("maxN").value);
@@ -208,9 +179,9 @@ let showCoefficientsMenu = function () {
   if (newMaxN > maxN) {
     for (let n = maxN + 1; n <= newMaxN; n++) {
       let stringCn =
-        '<div class="form-group">\\(c_' +
+        '<div class="form-group">\\(c_{' +
         n +
-        ' = \\) <input class="smallNumberInput" type="number" id="c' +
+        '} = \\) <input class="smallNumberInput" type="number" id="c' +
         n +
         'R" required value="0" step="any" /> \\( +\\quad i\\) <input type="number" class="smallNumberInput" id="c' +
         n +
@@ -228,6 +199,47 @@ let showCoefficientsMenu = function () {
 
   return false;
 };
+
+let systemsIds = [];
+for (let id of systemTypes) {
+  systemsIds.push({ image: id, params: id + "Parameters" });
+}
+// console.log(systemsIds);
+let mostrar = function (idAMostrar) {
+  console.log(idAMostrar);
+  SYSTEM_TYPE = idAMostrar;
+  for (let systemId of systemsIds) {
+    console.log(systemId);
+    if (systemId.image == idAMostrar) {
+      console.log(systemId.params);
+      document.getElementById(systemId.params).style.display = "block";
+    } else {
+      document.getElementById(systemId.params).style.display = "none";
+    }
+  }
+  let c0R = document.getElementById("c0R");
+  let c0I = document.getElementById("c0I");
+  if (idAMostrar == "well") {
+    c0R.disabled = true;
+    c0I.disabled = true;
+    c0R.value = "0";
+    c0I.value = "0";
+  } else {
+    c0R.disabled = false;
+    c0I.disabled = false;
+    c0R.value = "1";
+    c0I.value = "0";
+    document.getElementById("maxN").value = maxN > 1 ? maxN : 1;
+    showCoefficientsMenu();
+  }
+};
+
+// add event listeners
+for (let id of systemTypes) {
+  document.getElementById(id).onclick = () => mostrar(id);
+}
+//show SHO at the beggining
+mostrar("sho");
 
 document.getElementById("maxN").onchange = showCoefficientsMenu;
 console.log(document.getElementById("maxN"));

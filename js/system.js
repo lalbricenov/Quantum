@@ -82,7 +82,71 @@ class SHO {
     this.VString = "\\frac{1}{2}m\\omega^2x^2";
   }
 }
-export { SHO };
+
+class WELL {
+  // Infinite potential well
+  /**
+   * @param {number} m - Mass of the particle in mass units
+   * @param {number} a - Width of the well
+   * @param {number} maxN - N of the maximum state to be calculated. 0 means only the ground state.
+   */
+  constructor(m, a, maxN = 10) {
+    this.m = m;
+    this.a = a;
+    this.k = 2000;
+    this.h = 400;
+    this.maxN = maxN + 1;
+    this.coefBefSine = Math.sqrt(2 / this.a);
+    this.factorEnergy =
+      (Math.pow(hBar, 2) * Math.pow(Math.PI, 2)) /
+      (2 * this.m * Math.pow(this.a, 2));
+    this.calculateBaseStateStrings();
+  }
+
+  V = function (x) {
+    return (
+      this.h *
+      (1 / (1 + Math.exp(-2 * this.k * (x - this.a))) +
+        1 / (1 + Math.exp(2 * this.k * x)))
+    );
+  };
+
+  psiN = function (n, x) {
+    // stationary state n for the infinite potential well
+    if (x < 0 || x > this.a) {
+      return 0;
+    } else {
+      return this.coefBefSine * Math.sin((n * x * Math.PI) / this.a);
+    }
+  };
+  energy = function (n) {
+    return this.factorEnergy * Math.pow(n, 2);
+  };
+
+  calculateBaseStateStrings() {
+    // Strings that correspond to the time independent base states
+    this.psiStrings = [];
+    this.generalPsiString =
+      "\\sqrt{\\frac{2}{a}}\\sin{\\left(\\frac{n\\pi}{a}x\\right)}";
+
+    this.energyStrings = [];
+    this.generalEnergyString = "\\frac{n^2\\pi^2\\hbar^2}{2ma^2}";
+    for (let n = 0; n < this.maxN; n++) {
+      if (n == 0) {
+        this.psiStrings.push("0");
+        this.energyStrings.push("0");
+        continue;
+      }
+      let strPsi = this.generalPsiString.replace(/{n/g, "{" + n);
+      let strE = this.generalEnergyString.replace(/n/g, n);
+      this.psiStrings.push(strPsi);
+      this.energyStrings.push(strE);
+    }
+
+    this.VString = "0";
+  }
+}
+export { SHO, WELL };
 // class INFW extends System {
 //   constructor(m, a) {
 //     // a is the width of the well

@@ -42,7 +42,7 @@ class PlotAnimation {
       let yArray = [];
       let potentialY = [];
       let x = this.xMin;
-      console.log(this.xMin);
+      // console.log(this.xMin);
       for (
         let n = 1;
         n < this.numPoints;
@@ -86,7 +86,7 @@ class PlotAnimation {
   };
 
   generateFrames = function () {
-    console.log("Inicio calculo");
+    // console.log("Inicio calculo");
     // console.log(this);
     // Generates N frames from tMin to tMax, including tMin and tMax
     // console.log(
